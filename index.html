@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saint-Valentin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Styles CSS */
+        body {
+            font-family: 'Press Start 2P', cursive;
+            color: #5e2a2a;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Vidéo en arrière-plan */
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1; /* Pour que la vidéo soit en arrière-plan */
+        }
+
+        /* Conteneurs pour le texte et les boutons */
+        .container {
+            background: rgba(255, 255, 255, 0.8); /* Fond blanc semi-transparent */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 1000px; /* Agrandissement de la zone blanche */
+            width: 90%;
+            margin: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 30px; /* Boutons plus grands */
+            margin: 15px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-family: 'Press Start 2P', cursive; /* Police gaming */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px); /* Effet de survol */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        input, textarea {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .souvenir {
+            background: #f9e3e3;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            text-align: center;
+            position: relative;
+        }
+
+        .souvenir img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .souvenir p {
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        .souvenir-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .souvenir-actions span {
+            cursor: pointer;
+            font-size: 1rem;
+            color: black;
+        }
+
+        .souvenir-actions span:hover {
+            color: #e74c3c;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 100%;
+        }
+
+        .day {
+            background-color: #c0392b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            position: relative;
+            transition: transform 0.2s, background-color 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1; /* Pour garder les cases carrées */
+        }
+
+        .day.past {
+            background-color: #ff7f7f; /* Rouge clair pour les jours passés */
+        }
+
+        .day.today {
+            background-color: #e74c3c; /* Rouge vif pour le jour actuel */
+        }
+
+        .day.future {
+            background-color: #555; /* Gris foncé pour les jours futurs */
+        }
+
+        .day::before {
+            content: '❤️';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 1rem;
+        }
+
+        /* Fenêtre modale pour afficher les cadeaux */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            text-align: center;
+        }
+
+        .modal button {
+            margin-top: 10px;
+        }
+
+        #security-page, #main-page, #souvenirs-page, #temps-page, #calendrier-page {
+            display: none;
+        }
+
+        #security-page {
+            display: block;
+        }
+
+        /* Styles pour la page du temps */
+        #temps-page #time {
+            font-size: 1.5rem;
+            line-height: 2;
+        }
+
+        #temps-page #time span {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Vidéo en arrière-plan -->
+    <video id="background-video" autoplay loop muted>
+        <source src="votre-video.mp4" type="video/mp4">
+        Votre navigateur ne supporte pas la vidéo en arrière-plan.
+    </video>
+
+    <!-- Page de sécurité -->
+    <div id="security-page" class="container">
+        <h1>Bienvenue</h1>
+        <p>Entrez le code pour accéder au site :</p>
+        <input type="text" id="code-input" placeholder="Entrez le code">
+        <button onclick="checkCode()">Valider</button>
+        <p id="error-message" style="color: red; display: none;">Code incorrect</p>
+    </div>
+
+    <!-- Page principale -->
+    <div id="main-page" class="container">
+        <h1>Home</h1>
+        <button onclick="showPage('souvenirs-page')">Nos Souvenirs</button>
+        <button onclick="showPage('temps-page')">Temps</button>
+        <button onclick="showPage('calendrier-page')">Calendrier</button>
+    </div>
+
+    <!-- Page des souvenirs -->
+    <div id="souvenirs-page" class="container">
+        <h1>Nos Souvenirs</h1>
+        <div id="add-souvenir-form">
+            <input type="text" id="souvenir-description" placeholder="Description du souvenir">
+            <input type="file" id="souvenir-image" accept="image/*">
+            <button onclick="addSouvenir()">Ajouter un souvenir</button>
+        </div>
+        <div class="gallery" id="souvenirs-gallery">
+            <!-- Les souvenirs seront ajoutés ici dynamiquement -->
+        </div>
+        <button onclick="showPage('main-page')">Retour</button>
+    </div>
+
+    <!-- Page du temps -->
+    <div id="temps-page" class="container">
+        <h1>Notre Temps Ensemble</h1>
+        <div id="timer">
+            <p id="time"></p>
+        </div>
+        <button onclick="showPage('main-page')">Retour</button>
+    </div>
+
+    <!-- Page du calendrier -->
+    <div id="calendrier-page" class="container">
+        <h1>Calendrier disponible à partir du 01/03/2025</h1>
+        <div class="calendar">
+            <!-- Cases du calendrier -->
+            <!-- Les cases sont générées dynamiquement en JavaScript -->
+        </div>
+        <button onclick="showPage('main-page')">Retour</button>
+    </div>
+
+    <!-- Fenêtre modale pour afficher les cadeaux -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-text"></p>
+            <button onclick="closeModal()">Fermer</button>
+        </div>
+    </div>
+
+    <script>
+        // Script JavaScript
+
+        // Fonction pour vérifier le code de sécurité
+        function checkCode() {
+            const code = document.getElementById('code-input').value;
+            if (code === '0331') {
+                document.getElementById('security-page').style.display = 'none';
+                document.getElementById('main-page').style.display = 'block';
+            } else {
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }
+
+        // Fonction pour afficher une page spécifique
+        function showPage(pageId) {
+            document.querySelectorAll('div[id$="-page"]').forEach(page => {
+                page.style.display = 'none';
+            });
+            document.getElementById(pageId).style.display = 'block';
+
+            // Si la page du calendrier est affichée, initialiser le calendrier
+            if (pageId === 'calendrier-page') {
+                initializeCalendar();
+            }
+
+            // Si la page des souvenirs est affichée, charger les souvenirs
+            if (pageId === 'souvenirs-page') {
+                loadSouvenirs();
+            }
+        }
+
+        // Fonction pour le décompte du temps
+        const startDate = new Date('2023-06-19T18:00:00'); // Date de début : 19 juin 2023 à 18h
+        const timerElement = document.getElementById('time');
+
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+            const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            timerElement.innerHTML = `
+                <span>${years} ans</span>
+                <span>${months} mois</span>
+                <span>${days} jours</span>
+                <span>${hours} heures</span>
+                <span>${minutes} minutes</span>
+                <span>${seconds} secondes</span>
+            `;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Fonction pour initialiser le calendrier
+        function initializeCalendar() {
+            const calendarElement = document.querySelector('.calendar');
+            const today = new Date();
+            const targetDate = new Date('2025-03-01'); // Date à partir de laquelle le calendrier est disponible
+
+            for (let day = 1; day <= 31; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                dayElement.textContent = day;
+
+                // Vérifier si la case peut être ouverte
+                if (today >= targetDate && day <= today.getDate() && today.getMonth() + 1 === 3 && today.getFullYear() === 2025) {
+                    if (day === today.getDate()) {
+                        dayElement.classList.add('today'); /* Rouge vif pour le jour actuel */
+                    } else {
+                        dayElement.classList.add('past'); /* Rouge clair pour les jours passés */
+                    }
+                    dayElement.addEventListener('click', () => {
+                        openModal(`Jour ${day}: Cadeau!`);
+                    });
+                } else {
+                    dayElement.classList.add('future'); /* Gris foncé pour les jours futurs */
+                }
+
+                calendarElement.appendChild(dayElement);
+            }
+        }
+
+        // Fonction pour ouvrir la fenêtre modale
+        function openModal(text) {
+            const modal = document.getElementById('modal');
+            const modalText = document.getElementById('modal-text');
+            modalText.textContent = text;
+            modal.style.display = 'block';
+        }
+
+        // Fonction pour fermer la fenêtre modale
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        // Fonction pour ajouter un souvenir
+        function addSouvenir() {
+            const description = document.getElementById('souvenir-description').value;
+            const imageInput = document.getElementById('souvenir-image');
+            const imageFile = imageInput.files[0];
+
+            if (!description || !imageFile) {
+                alert('Veuillez remplir tous les champs.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const souvenir = {
+                    description: description,
+                    image: e.target.result
+                };
+
+                // Sauvegarder le souvenir dans le localStorage
+                let souvenirs = JSON.parse(localStorage.getItem('souvenirs')) || [];
+                souvenirs.push(souvenir);
+                localStorage.setItem('souvenirs', JSON.stringify(souvenirs));
+
+                // Afficher le souvenir
+                displaySouvenir(souvenir);
+
+                // Réinitialiser le formulaire
+                document.getElementById('souvenir-description').value = '';
+                imageInput.value = '';
+            };
+            reader.readAsDataURL(imageFile);
+        }
+
+        // Fonction pour afficher un souvenir
+        function displaySouvenir(souvenir, index) {
+            const gallery = document.getElementById('souvenirs-gallery');
+            const souvenirElement = document.createElement('div');
+            souvenirElement.classList.add('souvenir');
+
+            const img = document.createElement('img');
+            img.src = souvenir.image;
+            img.alt = souvenir.description;
+
+            const p = document.createElement('p');
+            p.textContent = souvenir.description;
+
+            // Ajouter les icônes de suppression et de modification
+            const actions = document.createElement('div');
+            actions.classList.add('souvenir-actions');
+
+            const deleteIcon = document.createElement('span');
+            deleteIcon.textContent = '🗑️';
+            deleteIcon.onclick = () => deleteSouvenir(index);
+
+            const editIcon = document.createElement('span');
+            editIcon.textContent = '✏️';
+            editIcon.onclick = () => editSouvenir(index);
+
+            actions.appendChild(deleteIcon);
+            actions.appendChild(editIcon);
+
+            souvenirElement.appendChild(img);
+            souvenirElement.appendChild(p);
+            souvenirElement.appendChild(actions);
+            gallery.appendChild(souvenirElement);
+        }
+
+        // Fonction pour charger les souvenirs
+        function loadSouvenirs() {
+            const gallery = document.getElementById('souvenirs-gallery');
+            gallery.innerHTML = ''; // Vider la galerie avant de charger
+
+            const souvenirs = JSON.parse(localStorage.getItem('souvenirs')) || [];
+            souvenirs.forEach((souvenir, index) => {
+                displaySouvenir(souvenir, index);
+            });
+        }
+
+        // Fonction pour supprimer un souvenir
+        function deleteSouvenir(index) {
+            let souvenirs = JSON.parse(localStorage.getItem('souvenirs')) || [];
+            souvenirs.splice(index, 1); // Supprimer le souvenir à l'index donné
+            localStorage.setItem('souvenirs', JSON.stringify(souvenirs));
+            loadSouvenirs(); // Recharger les souvenirs
+        }
+
+        // Fonction pour modifier un souvenir
+        function editSouvenir(index) {
+            let souvenirs = JSON.parse(localStorage.getItem('souvenirs')) || [];
+            const newDescription = prompt('Modifier la description :', souvenirs[index].description);
+            if (newDescription !== null) {
+                souvenirs[index].description = newDescription;
+                localStorage.setItem('souvenirs', JSON.stringify(souvenirs));
+                loadSouvenirs(); // Recharger les souvenirs
+            }
+        }
+    </script>
+</body>
+</html>
